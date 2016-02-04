@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name" translatable="false">MyAppPortfolio</string>
+    <string name="action_settings" translatable="false">Settings</string>
+    <string name="app_title" translatable="false">My Nanodegree Apps!</string>
+    <string name="main_btn1" translatable="false">Spotify Streamer</string>
+    <string name="main_btn2" translatable="false">Football Scores App</string>
+    <string name="main_btn3" translatable="false">Library App</string>
+    <string name="main_btn4" translatable="false">Build It Bigger</string>
+    <string name="main_btn5" translatable="false">XYZ Reader</string>
+    <string name="main_btn6" translatable="false">Capstone</string>
+    <string name="lbl_toast" translatable="true">This button will launch</string>
+</resources>
