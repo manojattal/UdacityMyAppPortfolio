@@ -45,7 +45,7 @@ public class PopularMovie implements Parcelable {
         dest.writeString(this.PosterImage);
     }
 
-    public final Parcelable.Creator<PopularMovie> CREATOR = new Parcelable.Creator<PopularMovie>()
+    public static final Parcelable.Creator<PopularMovie> CREATOR = new Parcelable.Creator<PopularMovie>()
     {
         @Override
         public PopularMovie createFromParcel(Parcel source) {

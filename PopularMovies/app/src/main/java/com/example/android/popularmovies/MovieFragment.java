@@ -1,6 +1,7 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
 import org.json.JSONArray;
@@ -38,11 +40,10 @@ public class MovieFragment extends Fragment {
     private MovieImageAdapter m_moiveImageAdapter;
     private PopularMovie[] m_movies;
     private OnFragmentInteractionListener mListener;
-
+    private int INT_MOVIE_ORDER;
     @Override
     public void onStart() {
         super.onStart();
-        GetMovies();
     }
 
     public MovieFragment() {
@@ -60,18 +61,29 @@ public class MovieFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null || !savedInstanceState.containsKey(SAVED_DATA)) {
-            ReloadListData();
+        if(savedInstanceState != null && !savedInstanceState.containsKey(SAVED_DATA)) {
+            ArrayList<PopularMovie> list = savedInstanceState.getParcelableArrayList(SAVED_DATA);
         }
         else
         {
-            ArrayList<PopularMovie> list = savedInstanceState.getParcelableArrayList(SAVED_DATA);
+            // This is default Sort Order
+            INT_MOVIE_ORDER = 1;
+            ReloadListData();
         }
     }
 
-    private void  ReloadListData()
+    public void  ReloadListData()
     {
-        new FetchMoviesTask().execute();
+        FetchMoviesTask fetchMoviesTask = new FetchMoviesTask();
+        fetchMoviesTask.execute();
+    }
+
+    public void  ToggleMovieSortOrder()
+    {
+        if(INT_MOVIE_ORDER == 1)
+            INT_MOVIE_ORDER = 2;
+        else
+            INT_MOVIE_ORDER = 1;
     }
 
     @Override
@@ -82,6 +94,18 @@ public class MovieFragment extends Fragment {
         GridView gridView = (GridView) rootView.findViewById(R.id.gridview_movies);
         m_moiveImageAdapter = new MovieImageAdapter(getActivity(), new ArrayList<PopularMovie>());
         gridView.setAdapter(m_moiveImageAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                PopularMovie movie = (PopularMovie) parent.getItemAtPosition(position);
+                if(movie != null)
+                {
+                    Intent detailsIntent = new Intent(getActivity(), MovieDetailsActivity.class);
+                    detailsIntent.putExtra("movieDetails", movie);
+                    startActivity(detailsIntent);
+                }
+            }
+        });
         return rootView;
     }
 
@@ -128,18 +152,15 @@ public class MovieFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private  void  GetMovies()
-    {
-        FetchMoviesTask task = new FetchMoviesTask();
-        task.execute();
-    }
-
-
     public class FetchMoviesTask extends AsyncTask<String, Void, PopularMovie[]> {
         private  final  String LOG_TAG = FetchMoviesTask.class.getSimpleName();
-
         @Override
         protected void onPostExecute(PopularMovie[] movies) {
+            ResetAdapter(movies);
+        }
+
+        private  void  ResetAdapter(PopularMovie[] movies)
+        {
             if(movies != null){
                 m_moiveImageAdapter.clear();
                 m_movies = movies;
@@ -158,7 +179,17 @@ public class MovieFragment extends Fragment {
             HttpURLConnection urlConnection = null;
 
             try {
-                String BASE_URL = "https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=a8b4f7b811047c61ba8aa8724e939d58";
+                // vote_average.desc
+                // popularity.desc
+                String SORTORDER;
+                if(INT_MOVIE_ORDER == 1)
+                    SORTORDER = "popularity.desc";
+                else
+                    SORTORDER = "vote_average.desc";
+                // INSERT YOUR API KEY HERE
+                String SECRET_KEY = "";
+                String BASE_URL = String.format("https://api.themoviedb.org/3/discover/movie?sort_by=%s&api_key=%s", SORTORDER, SECRET_KEY);
+                Log.v(LOG_TAG, BASE_URL);
                 URL url = new URL(BASE_URL);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");

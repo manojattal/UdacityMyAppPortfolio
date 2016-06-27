@@ -1,12 +1,17 @@
 package com.example.android.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 
 /**
@@ -16,7 +21,6 @@ import android.view.ViewGroup;
  * to handle interaction events.
  * Use the {@link MovieDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
- *
  */
 public class MovieDetailsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
@@ -29,6 +33,10 @@ public class MovieDetailsFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    public MovieDetailsFragment() {
+        // Required empty public constructor
+    }
 
     /**
      * Use this factory method to create a new instance of
@@ -47,9 +55,6 @@ public class MovieDetailsFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public MovieDetailsFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +69,24 @@ public class MovieDetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_movie_details, container, false);
+        Intent intent = getActivity().getIntent();
+        if(intent != null) {
+            Bundle parcelableBundle = intent.getExtras();
+            PopularMovie movie = parcelableBundle.getParcelable("movieDetails");
+            TextView title = (TextView) view.findViewById(R.id.moview_details_title);
+            title.setText(movie.Title);
+            TextView releaseDate = (TextView) view.findViewById(R.id.releaseDate);
+            releaseDate.setText("Release Date: " + movie.ReleaseDate);
+            TextView raring = (TextView) view.findViewById(R.id.rating);
+            raring.setText("Rating: " + movie.UserRating);
+            TextView overview = (TextView) view.findViewById(R.id.overview);
+            overview.setText(movie.Overview);
+            ImageView thumbnailImage = (ImageView) view.findViewById(R.id.movie_details_image);
+            Glide.with(getContext()).load(movie.PosterImage)
+                    .into(thumbnailImage);
+        }
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -96,7 +118,7 @@ public class MovieDetailsFragment extends Fragment {
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
